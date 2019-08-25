@@ -1,0 +1,73 @@
+code
+
+# First, set your working directory (see episode 'Analyzing Patient Data' for more
+# info)
+setwd("~/Desktop/r-novice-inflammation/")
+
+# Import the data and look at the first six rows
+carSpeeds <- read.csv(file = 'data/car-speeds.csv')
+head(carSpeeds)
+
+
+# The first row of the data without setting the header argument:
+carSpeeds[1, ]
+
+ The first row of the data if the header argument is set to FALSE:
+carSpeeds <- read.csv(file = 'data/car-speeds.csv', header = FALSE)
+
+carSpeeds[1, ]
+
+
+ First - reload the data with a header
+carSpeeds <- read.csv(file = 'data/car-speeds.csv')
+
+carSpeeds$Color <- ifelse(carSpeeds$Color == 'Blue', 'Green', carSpeeds$Color)
+carSpeeds$Color
+
+
+To see the internal structure, we can use another function, str(). In this case, the dataframe¡¯s internal structure includes the format of each column, which is what we are interested in. str() will be reviewed a little more in the lesson Data Types and Structures.
+
+str(carSpeeds)
+
+
+carSpeeds <- read.csv(file = 'data/car-speeds.csv', stringsAsFactors = FALSE)
+str(carSpeeds)
+
+
+carSpeeds$Color <- ifelse(carSpeeds$Color == 'Blue', 'Green', carSpeeds$Color)
+carSpeeds$Color
+
+
+carSpeeds <- read.csv(file = 'data/car-speeds.csv', as.is = 1)
+
+
+str(carSpeeds)
+
+
+carSpeeds$Color <- ifelse(carSpeeds$Color == 'Blue', 'Green', carSpeeds$Color)
+carSpeeds$Color
+
+
+carSpeeds$State <- ifelse(carSpeeds$State == 'Arizona', 'Ohio', carSpeeds$State)
+carSpeeds$State
+
+
+carSpeeds <- read.csv(
+  file = 'data/car-speeds.csv',
+  stringsAsFactors = FALSE, 
+  strip.white = TRUE,
+  sep = ','
+  )
+
+
+
+
+
+```{r}
+set.seed(123)
+x=rnorm(100,mean=100,sd=10)
+set.seed(234)
+y=rnorm(100,mean=100,sd=10)
+hist(x,breaks=20)
+plot(density(x))
+```
