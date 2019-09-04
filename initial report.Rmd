@@ -1,0 +1,55 @@
+---
+title: "Initial Report"
+author: "Almog"
+date: "26/08/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+
+```
+
+# R report 
+
+
+```{r read, include=FALSE}
+studentinfo <- read.csv("data/studentinfo.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE)
+Semesters <- c("2013B"," ", "2013J", " ", "2014B", " ", "2014J", " ")
+Females <- c("2389", "51.0%", "4200", "47.5%", "3368", "43.2%", "4761", "42.30%")
+Males<- c("2295", "49.0%", "4645", "52.5%", "4436", "56.8%", "6499", "57.7%")
+gender <- data.frame(Semesters, Females, Males)
+```
+
+
+# Almog
+In the graph below we have measured how many students have decided to take each course in each semester.
+The amount of students taking the course "AAA" in each semester is the lowest by far from all the rest, it doesn't look like many students want to take this course. 
+The course "BBB" have a high amount of students in each semester compared to the rest of the courses.
+Its clear to see that the course "CCC" is only taken up by students on the second year semesters i.e. 2014B, 2014J. with a high number of students.
+The courses "DDD" and "FFF" and almost the same in all the semesters with a slight change in numbers.
+"FFF" and "GGG" are the same as the above they are almost the same in all semesters besides 2013B where no student took up those courses. 
+
+```{r module, echo=TRUE}
+ggplot(studentinfo) + geom_bar(aes(x=studentinfo$code_module, fill=studentinfo$code_module)) + labs(title = "Students in each module per semester", fill = "Modules", x="Modules", y="Amount of students") + facet_wrap(~ studentinfo$code_presentation) 
+```
+
+
+The distibution of gender can be represented in this graph in divides the gender distribution in each semester. 
+Only in the first semester the percentage of females is greater than the males, the percentage of males growns with each passing semester the percentage and amout of females and males can be seen in the table below
+
+```{r gender, echo=TRUE}
+ggplot(studentinfo) + geom_bar(aes(x=studentinfo$gender, fill=studentinfo$gender)) + labs(title = "Gender distribution for each semester", fill = "Gender", x="Gender", y="Amount of students") + facet_wrap(~ studentinfo$code_presentation)
+```
+
+
+```{r}
+
+gender%>%
+    kable() %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed", full_width = F))
+
+```
