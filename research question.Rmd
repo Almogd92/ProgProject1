@@ -1,0 +1,40 @@
+---
+title: "research question"
+author: "Almog"
+date: "05/09/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(knitr)
+library(dplyr)
+library(kableExtra)
+```
+
+```{r read, include=FALSE}
+studentVle <- read.csv("data/studentVle.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+assessments <-read.csv("data/assessments.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE)
+```
+
+methodology
+packages used ggplot2, knitr and dplyr
+the package dplyr was used to filter the data in the code_module columb in order to show only the clicks registered in the course "AAA" 
+
+```{r graph, echo=TRUE}
+studentVle2 <- studentVle%>%filter(code_module=='AAA')
+Vle <- studentVle2 %>% group_by(studentVle2$date,studentVle2$code_presentation) %>% tally(sum_click)
+ggplot(Vle) + geom_line(aes(x=Vle$`studentVle2$date`, y =Vle$n)) + xlim(-24,270) + 
+  scale_x_continuous(name ="date in the course", breaks = seq(-30, 270, by = 20))  + 
+  theme(axis.text.x = element_text(size = 12, angle = 45, hjust = 1)) +
+  labs(title = "Student's click sum in course AAA", x="Date in the course", y="Click sum") + 
+  facet_wrap(~ Vle$`studentVle2$code_presentation`)
+```
+
+```{r}
+assessments2 <- assessments%>%filter(code_module=='AAA')
+assessments2%>%
+    kable() %>%  
+      kable_styling(fixed_thead = T, bootstrap_options = c("striped", "hover", "condensed", full_width = F ))
+```
