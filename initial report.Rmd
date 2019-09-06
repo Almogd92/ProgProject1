@@ -18,6 +18,7 @@ library(kableExtra)
 
 ```{r read, include=FALSE}
 studentinfo <- read.csv("data/studentinfo.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE)
+
 Semesters <- c("2013B"," ", "2013J", " ", "2014B", " ", "2014J", " ")
 Females <- c("2389", "51.0%", "4200", "47.5%", "3368", "43.2%", "4761", "42.30%")
 Males<- c("2295", "49.0%", "4645", "52.5%", "4436", "56.8%", "6499", "57.7%")
