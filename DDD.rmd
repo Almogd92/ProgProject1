@@ -1,0 +1,31 @@
+---
+title: "sprint2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+install.packages('dplyr')
+library(dplyr)
+```
+
+```{r echo=TRUE}
+studentVle <- read.csv("Practice/Data/studentVle.csv", header = TRUE, sep =",", stringsAsFactors = TRUE)
+
+summary(studentVle)
+
+```
+
+
+```{r echo=TRUE}
+
+course <- filter(studentVle, code_module == 'DDD')
+
+Vle <- course %>% group_by(course$date, course$code_presentation, add = FALSE) %>% tally(sum_click)
+
+ggplot(Vle) + geom_line(aes(x=Vle$`course$date`, y =Vle$n, colour = 'red')) + xlim(-24,270) + scale_x_continuous(breaks = seq(-30, 270, by = 20))  + 
+  theme(axis.text.x = element_text(size = 12, angle = 90, hjust = 1)) + 
+  facet_wrap(~ Vle$`course$code_presentation`, scales = "free_y") +  labs(title = "Analysis for course DDD", x="Date", y="Sum of VLE clicks")
+
+```
