@@ -1,5 +1,5 @@
 ---
-title: "research question"
+title: "Research Question #1"
 author: "Almog"
 date: "05/09/2019"
 output: html_document
@@ -18,17 +18,24 @@ studentVle <- read.csv("data/studentVle.csv", header = TRUE, sep = ",", stringsA
 assessments <-read.csv("data/assessments.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE)
 ```
 
-methodology
-packages used ggplot2, knitr and dplyr
-the package dplyr was used to filter the data in the code_module columb in order to show only the clicks registered in the course "AAA" 
+# Research Question.
+## What is the trend for students' interaction with the VLE according to the time of the semester?
+### Methodology
+##### Packages used ggplot2, knitr, dplyr and kable. 
+
+At first I used the package "dplyr" using the function "filter" to filter the data in the code_module column in order to show only the clicks registered in the course "AAA" for all the semesters it ran in, then I used the functions "group_by" and "tally" to group and count the sum of clicks for each date in the course.
+The package ggplot2 was used with "geom_line" in order to visualize the data in a line graph that showed the sum of clicks per date in the course.
+The x axis scale was changed using the "scale_x_continuous" function to show when the assessments date are in the course according to the table shown below,  following that I Changed the size and the angle of the x axis text, added titles to the graph and to the x and y axis. Finally, I used the "facet_wrap" function in order to separate the data to two different graphs to show how many clicks recorded in each semester the course ran. 
+
+After finishing with the graph I wanted to show the times that the course had assessments in each semester so I used the "kable" package to make a graph of the "assessments" csv file, again I use the "dplyr" package to filter the data in the code_module column to show only the "AAA" course and used "kable" function to set the data in a table that shows the dates of the assessments in each semester for easy understanding of the graph.
 
 ```{r graph, echo=TRUE}
 studentVle2 <- studentVle%>%filter(code_module=='AAA')
 Vle <- studentVle2 %>% group_by(studentVle2$date,studentVle2$code_presentation) %>% tally(sum_click)
-ggplot(Vle) + geom_line(aes(x=Vle$`studentVle2$date`, y =Vle$n)) + xlim(-24,270) + 
-  scale_x_continuous(name ="date in the course", breaks = seq(-30, 270, by = 20))  + 
-  theme(axis.text.x = element_text(size = 12, angle = 45, hjust = 1)) +
-  labs(title = "Student's click sum in course AAA", x="Date in the course", y="Click sum") + 
+ggplot(Vle) + geom_line(aes(x=Vle$`studentVle2$date`, y =Vle$n)) + 
+  scale_x_continuous(breaks = c( 19, 54, 117, 166, 215, 250))  + 
+  theme( axis.text.x = element_text( size = 12, angle = 45, hjust = 1)) +
+  labs(title = "Student's click sum in course AAA",x = "Date of assessments in the course", y="Click sum") + 
   facet_wrap(~ Vle$`studentVle2$code_presentation`)
 ```
 
@@ -38,3 +45,20 @@ assessments2%>%
     kable() %>%  
       kable_styling(fixed_thead = T, bootstrap_options = c("striped", "hover", "condensed", full_width = F ))
 ```
+
+With this research question we wanted to see in what times the students use the VLE system, when is there more interaction with the VLE, is it higher interaction when there is an assessment due or when the exam is due.
+In the graph it is clear to see that most of the interaction with the vle is before the beginning of the course it seems like most of the students want to get a head start before the course begins, the highest clicks in the course is when the vle is first available to interact with, for example, in the 2013J semester it has the highest interaction with the vle at around 12,000 clicks on the -10 date, which is 10 days before the course starts, and the same can bee seen for the 2014J semester. 
+
+The interaction with the VLE in the start of the course, up until the first assessment, can be seen to be higher then in the middle and end of the course, one assumption can be that students feel like they do not know the course material and want to get a better understanding of the material presented in the course by interacting more with the VLE.
+
+Through out the semester, after the first assessment, the interaction varies but mostly constant except for when there is an assessment, it is visible to see that there are spikes in interaction with the VLE just before there is an assessment due or when there is an exam, there is a sharp spike just before the first assessment is due, proving the students want to get as much information they can get from the VLE to help them with their assessment, it is also visible to see the spike after the second assessment. 
+
+After the second assessment there is a small decrees of interaction with the VLE for a short period of time possibly because of the mid-semester break where most students get a week off of university to do activities unrelated to university, following the break the interaction goes back to normal and again showing another spike where the assesments are due for the third, fourth and fifth assessments, between those assessments the interaction is on a normal scale compared to dates not before the due dates. 
+
+there is one last big spike in the course time line is the spike just before the exam in that course, in both semesters the spike for the exam can be seen probably due to students wanting to make sure they have all the information that the VLE can offer and go through this information for clarity and to make sure they have a great mark in the exam. 
+
+To conclude, after analyzing this graph it is clear to see that there is a trend among the students, that shows more interaction with the VLE in the dates closer to the assessments due date, the students want to ensure they have all the information the course can offer, they are using it just before all the assessments and especially before the final exam
+
+
+
+
