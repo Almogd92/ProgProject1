@@ -28,6 +28,7 @@ The package ggplot2 was used with "geom_line" in order to visualize the data in 
 The x axis scale was changed using the "scale_x_continuous" function to show when the assessments date are in the course according to the table shown below,  following that I Changed the size and the angle of the x axis text, added titles to the graph and to the x and y axis. Finally, I used the "facet_wrap" function in order to separate the data to two different graphs to show how many clicks recorded in each semester the course ran. 
 
 After finishing with the graph I wanted to show the times that the course had assessments in each semester so I used the "kable" package to make a graph of the "assessments" csv file, again I use the "dplyr" package to filter the data in the code_module column to show only the "AAA" course and used "kable" function to set the data in a table that shows the dates of the assessments in each semester for easy understanding of the graph.
+The "knitr" package was used to produce the report in an HTML format using rmarkdown.
 
 ```{r graph, echo=TRUE}
 studentVle2 <- studentVle%>%filter(code_module=='AAA')
