@@ -1,0 +1,39 @@
+---
+title: "sprint2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r echo=TRUE}
+studentVle <- read.csv("Data/studentVle.csv", header = TRUE, sep =",", stringsAsFactors = TRUE)
+
+summary(studentVle)
+
+```
+The packages employed are ggplot2, dplyr. Dplyr's filter function has helped in selecting one course module that I was working on i.e course DDD. Functions tally and group_by were used to count no. of clicks and group the sum_clicks respectively.  
+The visualistion is done by GGPlot2, in particular, geom_line was used to make a line graph to depict the results suitably. The facet_wrap function was used to separate the different semesters into different graphs to get a better understanding of the result. 
+
+```{r echo=TRUE}
+
+###
+
+course <- filter(studentVle, code_module == 'DDD')
+
+Vle <- course %>% group_by(course$date, course$code_presentation, add = FALSE) %>% tally(sum_click)
+
+ggplot(Vle) + geom_line(aes(x=Vle$`course$date`, y =Vle$n, colour = 'red')) + xlim(-24,270) + scale_x_continuous(breaks = seq(-30, 270, by = 20))  + 
+theme(axis.text.x = element_text(size = 12, angle = 90, hjust = 1)) + 
+facet_wrap(~ Vle$`course$code_presentation`, scales = "free_y") +  labs(title = "Analysis for course DDD", x="Date", y="Sum of VLE clicks")
+
+```
+The question we wanted to answer was "how does the time of the semester affect the student's interaction with VLE?" This meant to check for trends in the student's number of clicks with VLE throughout the semesters and find out any pattern. 
+As depicted in the graph, it is apparent that students interacted with the VLE at the start of the semester a lot, as seen from spikes, which is -10 on x-axis. This means before the semester started (0) and as soon as they gained access to the system. This can be the case because pupils want to familiarise themsleves before classes start and get a grip on course contents so they may not miss out on any pre-requisites for initial classes. 
+Another interesting finding is that in first half of all four semesters, students use the VLE more than the second half. This might be the case because the students are trying to get a hang of the course and they jump online more frequently to get a better understanding and when they are confident enough, they choose not to interact with VLE. The highest spikes (inc. the highest one at 22,000 in semester 2013J), are all taking place in first half. The usage decreases gradually.
+The spikes throughout the semester correlate to the assessment dates that take place throughout the semester. The dates are different for all semesters, but can be seen in assessments.csv file for individual courses per semester. Comparing that data with this generated graph gave me the finding that the number of clicks increase every time there is an assessment i.e there is a spike in the line graph.
+The last time we observe an increase in number of clicks is towards the very end of semester, which is very apparently because of final exam time when the students are revising the material and discussing with each other about the contents. 
+
