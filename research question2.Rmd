@@ -1,0 +1,77 @@
+---
+title: 'Research question 2'
+author: "Almog"
+date: "16/09/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(knitr)
+library(dplyr)
+```
+
+
+## Reseatch Question #2
+
+```{r}
+studentInfo <- read.csv("data/studentInfo.csv", header = TRUE, sep =",", stringsAsFactors = TRUE)
+studentVle <- read.csv("data/studentVle.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+```
+
+
+
+```{r include=FALSE}
+total <- merge(studentInfo,studentVle)
+```
+
+
+### Qualification Levels:
+
+#### HE Qualification
+```{r HE Qualification, echo=TRUE}
+totalB <- total%>%filter(highest_education =='HE Qualification')
+totB <- totalB %>% group_by(highest_education, code_presentation, code_module, date) %>% tally(sum_click)
+ggplot(totB) + geom_line(aes(x=totB$date, y =totB$n))  + facet_wrap( ~totB$code_module)
+```
+
+#### Post Graduate Qualification
+```{r Post Graduate Qualification, echo=TRUE}
+totalD <- total%>%filter(highest_education =='Post Graduate Qualification')
+totD <- totalD %>% group_by(highest_education, code_presentation, code_module, date) %>% tally(sum_click)
+ggplot(totD) + geom_line(aes(x=totD$date, y =totD$n))  + facet_wrap( ~totD$code_module)
+```
+
+#### A Level or Equivalent
+```{r A Level or Equivalent, echo=TRUE}
+totalA <- total%>%filter(highest_education =='A Level or Equivalent')
+totA <- totalA %>% group_by(code_presentation, code_module, date) %>% tally(sum_click)
+ggplot(totA) + geom_line(aes(x=totA$date, y =totA$n))  + facet_wrap( ~totA$code_module)
+```
+
+#### Lower Than A Level
+```{r Lower Than A Level, echo=TRUE}
+totalC <- total%>%filter(highest_education =='Lower Than A Level')
+totC <- totalC %>% group_by(highest_education, code_presentation, code_module, date) %>% tally(sum_click)
+ggplot(totC) + geom_line(aes(x=totC$date, y =totC$n))  + facet_wrap( ~totC$code_module)
+```
+
+#### No Formal quals
+```{r No Formal quals, echo=TRUE}
+totalE <- total%>%filter(highest_education =='No Formal quals')
+totE <- totalE %>% group_by(highest_education, code_presentation, code_module, date) %>% tally(sum_click)
+ggplot(totE) + geom_line(aes(x=totE$date, y =totE$n))  + facet_wrap( ~totE$code_module)
+```
+
+
+testing
+
+```{r}
+total1 <- total%>%filter(code_module == "AAA")
+tot <- total1 %>% group_by(code_presentation, date,id_student, highest_education) %>% tally(sum_click)
+ggplot(tot) + geom_line(aes(x=tot$date, y =tot$n)) + facet_wrap( tot$code_presentation ~ tot$highest_education)
+```
+
+
+

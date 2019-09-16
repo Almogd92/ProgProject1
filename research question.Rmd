@@ -18,7 +18,9 @@ studentVle <- read.csv("data/studentVle.csv", header = TRUE, sep = ",", stringsA
 assessments <-read.csv("data/assessments.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE)
 ```
 
-# Research Question.
+
+
+# Research Question
 ## What is the trend for students' interaction with the VLE according to the time of the semester?
 ### Methodology
 ##### Packages used ggplot2, knitr, dplyr and kable. 
@@ -40,9 +42,11 @@ ggplot(Vle) + geom_line(aes(x=Vle$`studentVle2$date`, y =Vle$n)) +
   facet_wrap(~ Vle$`studentVle2$code_presentation`)
 ```
 
+```
+
 ```{r}
 assessments2 <- assessments%>%filter(code_module=='AAA')
-assessments2%>%
+assessments2 %>%
     kable() %>%  
       kable_styling(fixed_thead = T, bootstrap_options = c("striped", "hover", "condensed", full_width = F ))
 ```
@@ -58,7 +62,7 @@ After the second assessment there is a small decrees of interaction with the VLE
 
 there is one last big spike in the course time line is the spike just before the exam in that course, in both semesters the spike for the exam can be seen probably due to students wanting to make sure they have all the information that the VLE can offer and go through this information for clarity and to make sure they have a great mark in the exam. 
 
-To conclude, after analyzing this graph it is clear to see that there is a trend among the students, that shows more interaction with the VLE in the dates closer to the assessments due date, the students want to ensure they have all the information the course can offer, they are using it just before all the assessments and especially before the final exam
+To conclude, after analyzing this graph it is clear to see that there is a trend among the students, that shows more interaction with the VLE in the dates closer to the assessments due date, the students want to ensure they have all the information the course can offer, they are using it just before all the assessments and especially before the final exam.
 
 
 
