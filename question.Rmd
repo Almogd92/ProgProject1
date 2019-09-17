@@ -1,0 +1,36 @@
+---
+title: "question 1"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(knitr)
+library(dplyr)
+library(kableExtra)
+```
+
+```{r read, include=FALSE}
+studentVle <- read.csv("csv/studentVle.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+assessments <-read.csv("csv/assessments.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE)
+```
+
+# Research Question
+## What is the trend for students' interaction with the VLE according to the time of the semester?
+### Methodology
+##### Packages used ggplot2, knitr, dplyr and kable. 
+
+I have performed some analysis to understand the distribution of the identifying attributes. the date in module CCC and the date in each code_presentation based on the analysis it can be seen that it starts with the high amount student in date and but as we can see that it goes slowly down throught out the middile and goes back to normall. as it is aomost the same in each code-presentation these can be used to analysis its impact in the final result.
+
+```{r graph, echo=TRUE}
+studentVle2 <- studentVle%>%filter(code_module=='CCC')
+Vle <- studentVle2 %>% group_by(studentVle2$date,studentVle2$code_presentation) %>% tally(sum_click)
+ggplot(Vle) + geom_line(aes(x=Vle$`studentVle2$date`, y =Vle$n, colour = 'red')) + 
+  scale_x_continuous(breaks = c( 19, 54, 117, 166, 215, 250))  + 
+  theme( axis.text.x = element_text( size = 12, angle = 45, hjust = 1)) +
+  labs(title = "Student's sum of click in course CCC",x = "Date of assessments in the course", y="Sum of click") + 
+  facet_wrap(~ Vle$`studentVle2$code_presentation`)
+```
+
