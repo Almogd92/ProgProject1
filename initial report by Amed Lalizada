@@ -1,0 +1,11 @@
+### Methodology 
+##### Packages used ggplot2. 
+## I have performed some analysis to understand the distribution of the identifying attributes. The number of previous attempts. Based on the analysis many students had 0 attempts. as it is almost the same in each module. These can be used to analysis its impact on the final results. 
+ 
+```{r echo=TRUE} 
+studentinfo <- read.csv("csv/studentinfo.csv", header = TRUE,sep = ",", stringsAsFactors = FALSE ) 
+ ``` 
+```{r echo=TRUE} 
+ggplot(studentinfo) + geom_bar(aes(x=studentinfo$num_of_prev_attempts, fill=studentinfo$final_result)) +  
+labs(title = "number of previous attempts in each module", fill = "final results", x="num of previous attempts", y="Amount of students") + facet_grid(~ studentinfo$code_module) 
+``` 
