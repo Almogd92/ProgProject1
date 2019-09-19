@@ -1,0 +1,30 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE }
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(plyr)
+library(dplyr)
+```
+
+## R Markdown
+###read the data
+
+##data anlaysis 
+
+
+
+
+
+
+
+
+```{r echo=TRUE}
+ggplot(total)+geom_line(aes(x=date,y=sum_click)) +facet_wrap(~total$highest_education)
+```
+##analysis
+##as we can see there are five different higherst_education ,they are  A level of Equivalent，HE Qualification,Lower,Lower Than A level,No Formal quals and post Graduate Qualification.
+##from the five graph above,we can see the 'A level or Equivalent' and 'the Lower Than A evel' take the most part of popular in interaction ,especial for' the A level or Equivalent', it take even more than 1000 at about 150 date ,much more high than others (several times),'HE qualificaiton'take lower interaction ranged the third one,'No Formal quals' and 'Post Graduate Qualification' range the fourth and fifth respectivily,and we can see ‘No Formal quals' start with high sum_click at first and graduatlly go down to zero about 250 date,and the'Post Graduate Qualification' is different ,it have more sum_click at the beging about date -10,and the date after 200,while it have less sum_click between the date of 50 - 200,hower it have two high click during this time that is about date 170 and date 180,'Lower Than A level' looks smoothly during the whole date,except there are several high click number in the fist 100 date taking about 250 sum_click,compare little higher than others 

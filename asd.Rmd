@@ -1,0 +1,60 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE }
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(plyr)
+library(dplyr)
+```
+
+## R Markdown
+###read the data
+
+##data anlaysis 
+
+
+
+
+
+
+```{r echo=TRUE, message=FALSE, warning=TRUE}
+students<- read.csv("data/studentinfo.csv",header=TRUE,sep=",",stringsAsFactors = TRUE)
+```
+# the 
+```{r echo=TRUE}
+ggplot(students) + geom_bar(aes(x=students$highest_education, fill=students$highest_education)) + labs(title = "Students in each education lever per semester", fill = "Education", x="Modules", y="Amount of students") + facet_wrap(~ students$code_presentation)+
+theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+#
+
+```{r echo=TRUE}
+ggplot(students) + geom_bar(aes(x=students$code_presentation, fill=students$code_presentation)) + labs(title = "the number of student in different presentation", fill = "presentation", x="presentation", y="Amount of students")
+```
+```{r echo=TRUE}
+studentVle<- read.csv("data/studentVle.csv",header=TRUE,sep=",",stringsAsFactors = TRUE)
+studentVle_b <- Vle%>%filter(code_module=='BBB')
+ggplot(studentVle_b) + geom_bar(aes(x=studentVle_b$date,fill=studentVle_b$date)) + labs(title = "the number of BBB student in different date", fill = "date", x="date", y="Amount of students")
+
+
+```
+```{r echo=TRUE}
+studentVle<- read.csv("data/studentVle.csv",header=TRUE,sep=",",stringsAsFactors = TRUE)
+studentVle_b <- studentVle%>%filter(code_module=='BBB')
+studentVle_b_2013 <- studentVle_b%>%filter(code_presentation=='2013B')
+ggplot(studentVle_b_2013) + geom_bar(aes(x=studentVle_b_2013$date,fill=studentVle_b_2013$date)) + labs(title = "the number of BBB student in 2013B different date", fill = "date", x="date", y="Amount of students")
+
+
+```
+
+```{r echo=TRUE}
+studentVle<- read.csv("data/studentVle.csv",header=TRUE,sep=",",stringsAsFactors = TRUE)
+studentVle_b <- studentVle%>%filter(code_module=='BBB')
+studentVle_b_2013J <- studentVle_b%>%filter(code_presentation=='2013J')
+ggplot(studentVle_b_2013J) + geom_bar(aes(x=studentVle_b_2013J$date,fill=studentVle_b_2013J$date)) + labs(title = "the number of BBB student in 2013J different date", fill = "date", x="date", y="Amount of students")
+
+
+```
