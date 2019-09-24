@@ -1,0 +1,58 @@
+---
+title: "Q3"
+author: "Ramish"
+date: "20/09/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(plyr)
+library(dplyr)
+library(arules)
+```
+
+```{r}
+c <- read.csv("Practice/Data/courses.csv", header = TRUE, sep=",", stringsAsFactors = TRUE)
+a <- read.csv("Practice/Data/assessments.csv", header = TRUE, sep=",", stringsAsFactors = TRUE)
+s <- read.csv("Practice/Data/studentAssessment.csv", header = TRUE, sep=",", stringsAsFactors = TRUE)
+
+```
+
+```{r}
+
+m1 <- merge(c, a, by = c("code_module", "code_presentation")) %>% merge(s, by = "id_assessment")
+```
+
+```{r}
+
+t1 <- m1 %>% group_by(code_module, code_presentation, weight, score)
+
+t1$date_submitted <- NULL
+t1$is_banked <- NULL
+t1$module_presentation_length <- NULL
+t1$date <- NULL
+t1 <- t1[complete.cases(t1), ]
+
+
+t1$code_module <- as.factor(t1$code_module)
+t1$code_presentation <- as.factor(t1$code_presentation)
+t1$weight <- as.factor(t1$weight)
+t1$score <- as.factor(t1$score)
+t1
+
+```
+
+```{r}
+
+rules <- apriori(t1, parameter = list(support = 0.01, confidence = 0.15))
+
+
+subRules <- which(colSums(is.subset(rules, rules)) > 1) # get subset rules in a vector
+length(subRules)
+rules <- rules[-subRules] # remove subset rules
+
+rules_sup <- sort (rules, by="support", decreasing = TRUE) # sort by support
+inspect(head(rules_sup)) # print top 5 rules
+
+```
