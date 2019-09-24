@@ -28,6 +28,7 @@ merge1 <- merge(x = assessments, y = courses, by = c("code_module", "code_presen
 
 ```{r merge2, include=FALSE}
 merge2 <- merge(x = merge1, y = studentassessment, by = "id_assessment", all.x = TRUE)
+
 ```
 
 crates a table that groups by code_module, code_presentation, module_presentation_length, id_student and then calculate the final result by summing all the final score calculations of ((weight/100) times score)
@@ -37,5 +38,27 @@ does group by selected columns, removes all other columns
 newtable2 <- merge2 %>%
   group_by( code_module, code_presentation, module_presentation_length, id_student) %>%
   summarise(final_result = (sum(final_score = ((weight / 100) * score))))
- newtable2 <- newtable2[!(newtable2$final_result=="0"),]
+  newtable2 <- newtable2[!(newtable2$final_result=="0"),]
+ 
+ newtable2$id_student <- NULL
+newtable2<-  newtable2[complete.cases(newtable2), ]
+ 
+newtable2$code_module <- as.factor(newtable2$code_module)
+newtable2$code_presentation <- as.factor(newtable2$code_presentation)
+newtable2$module_presentation_length <- as.factor(newtable2$module_presentation_length)
+newtable2$final_result <- as.factor(newtable2$final_result)
+ 
+```
+```{r}
+str(newtable2)
+
+```
+
+``` {r}
+rules <- apriori(newtable2, parameter = list(support = 0.01, confidence = 0.2))
+```
+
+sort the rules by support and show the top ones (5 ,head) . then test and train in next sprint
+``` {r}
+print(rules)
 ```
