@@ -37,5 +37,5 @@ does group by selected columns, removes all other columns
 newtable2 <- merge2 %>%
   group_by( code_module, code_presentation, module_presentation_length, id_student) %>%
   summarise(final_result = (sum(final_score = ((weight / 100) * score))))
- newtable2 <- newtable2[!(newtable2$final_result==0)]
+ newtable2 <- newtable2[!(newtable2$final_result=="0"),]
 ```
