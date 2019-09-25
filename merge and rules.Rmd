@@ -55,10 +55,15 @@ str(newtable2)
 ```
 
 ``` {r}
-rules <- apriori(newtable2, parameter = list(support = 0.01, confidence = 0.2))
+rules <- apriori(newtable2, parameter = list(support = 0.02, confidence = 0.15))
+
+rules <- sort(rules, by = "lift", decreasing = T) #sorts the rules "by" can be changed
+#sort the rules by:
+#if "support" is used the lhs doesnt have anything in it
+#if "confidence" is used the lhs is length
+#if "lift" is used the lhs is module and presentation mainly
+length(rules)
+inspect(rules[1:5])
 ```
 
 sort the rules by support and show the top ones (5 ,head) . then test and train in next sprint
-``` {r}
-print(rules)
-```
