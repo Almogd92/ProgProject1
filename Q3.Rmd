@@ -43,7 +43,7 @@ rules <- apriori(m2, parameter = list(support = 0.01, confidence = 0.15))
 subRules <- which(colSums(is.subset(rules, rules)) > 1) # get subset rules in a vector
 length(subRules)
 rules <- rules[-subRules] # remove subset rules
-rules_sup <- sort (rules, by="support", decreasing = TRUE) # sort by support
+rules_sup <- sort (rules, by="lift", decreasing = FALSE) # sort by support
 inspect(head(rules_sup)) # print top 5 rules
 #rules <- apriori(m1, parameter = list(support = 0.01, confidence = 0.2))
 
