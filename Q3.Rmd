@@ -18,41 +18,45 @@ library(arules)
 c<- read.csv("data/courses.csv",header=TRUE,sep=",",stringsAsFactors = TRUE)
 a<- read.csv("data/assessments.csv",header=TRUE,sep=",",stringsAsFactors = TRUE)
 s<- read.csv("data/studentAssessment.csv",header=TRUE,sep=",",stringsAsFactors = TRUE)
-
+## read the data from the scv
 m1<-merge(c,a ,by=c("code_module","code_presentation"))%>%merge(s,by="id_assessment")
 
+
+##mergy the date as one data set 
 m2 <- m1 %>%
   group_by( assessment_type, module_presentation_length, code_module, score)
 
-
-
+##group the new data set by assessment_type, module_presentation_length, code_module, score
 m2$date_submitted <- NULL
 m2$is_banked <- NULL
 m2$date <- NULL
 m2$weight <- NULL
 m2 <- m2[complete.cases(m2), ]
-
+```
+##remove the several value that do not need 
+```{r echo=TRUE}
 m2$assessment_type<-as.factor(m2$assessment_type)
 m2$module_presentation_length<-as.factor(m2$module_presentation_length)
 m2$code_module<-as.factor(m2$code_module)
 m2$score<-as.factor(m2$score)
+```
 
 
-rules <- apriori(m2, parameter = list(support = 0.01, confidence = 0.15))
+```{r echo=TRUE}
+str(m2)
+```
+
+```{r echo=TRUE}
+## make the assessment_type,module_presentation_length,code_module and score to the factory of the dataset 
+rules <- apriori(m2, parameter = list(support = 0.2, confidence = 0.15))
 
 subRules <- which(colSums(is.subset(rules, rules)) > 1) # get subset rules in a vector
 length(subRules)
-rules <- rules[-subRules] # remove subset rules
-rules_sup <- sort (rules, by="lift", decreasing = FALSE) # sort by support
-inspect(head(rules_sup)) # print top 5 rules
-#rules <- apriori(m1, parameter = list(support = 0.01, confidence = 0.2))
+#rules <- rules[-subRules] # remove subset rules
+rules_sup <- sort (rules, by="lift", decreasing = T) # sort by confidence ,and 
+inspect(rules_sup[1:5]) # print top 5 rules
 
 
-#write.csv(m1,"ItemList.csv", row.names = TRUE)
-#txn = read.transactions(file="ItemList.csv", rm.duplicates= TRUE, format="basket",sep=",",cols=1);
-
-
-#basket_rules <- apriori(txn,parameter = list(sup = 0.01, conf = 0.5,target="rules"));
 
 
 ```
