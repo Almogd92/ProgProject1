@@ -15,7 +15,7 @@ library(arulesViz)
 ```
 
 ## Merging
-```{r}
+```{r read}
 courses <- read.csv("data/courses.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
 assessments <-read.csv("data/assessments.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
 studentassessment <- read.csv("data/studentAssessment.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
@@ -23,11 +23,11 @@ studentassessment <- read.csv("data/studentAssessment.csv", header = TRUE, sep =
 
 
 ```{r merge1, include=FALSE}
-merge1 <- merge(x = assessments, y = courses, by = c("code_module", "code_presentation"), all.x = TRUE)
+merge1 <- merge(x = assessments, y = courses, by = c("code_module", "code_presentation"), all.x = TRUE) #merging assessements with courses
 ```
 
 ```{r merge2, include=FALSE}
-merge2 <- merge(x = merge1, y = studentassessment, by = "id_assessment", all.x = TRUE)
+merge2 <- merge(x = merge1, y = studentassessment, by = "id_assessment", all.x = TRUE) #merging the first merge with the student assessments
 
 ```
 
@@ -36,34 +36,34 @@ does group by selected columns, removes all other columns
 
 ```{r newtable2, echo=TRUE}
 newtable2 <- merge2 %>%
-  group_by( code_module, code_presentation, module_presentation_length, id_student) %>%
-  summarise(final_result = (sum(final_score = ((weight / 100) * score))))
-  newtable2 <- newtable2[!(newtable2$final_result=="0"),]
+  group_by( code_module, code_presentation, module_presentation_length, id_student) %>% #grouping by the selected columns
+  summarise(final_result = (sum(final_score = ((weight / 100) * score)))) #adding a column for the calculated final result 
+  newtable2 <- newtable2[!(newtable2$final_result=="0"),]  #removing and results that is equal to 0
  
- newtable2$id_student <- NULL
-newtable2<-  newtable2[complete.cases(newtable2), ]
+ newtable2$id_student <- NULL #removing the id_student column
+newtable2<-  newtable2[complete.cases(newtable2), ] #removing any NULL values
  
-newtable2$code_module <- as.factor(newtable2$code_module)
+newtable2$code_module <- as.factor(newtable2$code_module) #setting the columns as factors
 newtable2$code_presentation <- as.factor(newtable2$code_presentation)
 newtable2$module_presentation_length <- as.factor(newtable2$module_presentation_length)
 newtable2$final_result <- as.factor(newtable2$final_result)
  
 ```
-```{r}
-str(newtable2)
-
-```
+predicting the final results by code_module, code_presentation, module_presentation_length
+code_module, code_presentation, module_presentation_length => final_results
 
 ``` {r}
-rules <- apriori(newtable2, parameter = list(support = 0.02, confidence = 0.15))
 
-rules <- sort(rules, by = "lift", decreasing = T) #sorts the rules "by" can be changed
+rules <- apriori(newtable2, parameter = list(support = 0.02, confidence = 0.15)) #setting the rules according to the support and confidence 
+
+rules <- sort(rules, by = "lift", decreasing = T) #sorts the rules, "by" can be changed to support, confidence or lift
 #sort the rules by:
 #if "support" is used the lhs doesnt have anything in it
 #if "confidence" is used the lhs is length
 #if "lift" is used the lhs is module and presentation mainly
-length(rules)
-inspect(rules[1:5])
-```
+inspect(rules[1:5]) #shows the first 5 rows of the rules, remove the "[1:5]" to see all rules
 
-sort the rules by support and show the top ones (5 ,head) . then test and train in next sprint
+```
+there is no rule that predicts the final results, there is no relationship
+the course length doesnt affect the final results
+no rule shows that there is a relationship between the length and final results
