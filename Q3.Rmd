@@ -1,17 +1,51 @@
-  
 ---
-title: "Q3"
-author: "Yuzhong"
-date: "20/09/2019"
+title: "Untitled"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+##the first reserach question
+
+```{r echo=TRUE, message=FALSE, warning=TRUE}
+students<- read.csv("data/studentinfo.csv",header=TRUE,sep=",",stringsAsFactors = TRUE)
+```
+# the 
+```{r echo=TRUE}
+ggplot(students) + geom_bar(aes(x=students$highest_education, fill=students$highest_education)) + labs(title = "Students in each education lever per semester", fill = "Education", x="Modules", y="Amount of students") + facet_wrap(~ students$code_presentation)+
+theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r setup, include=FALSE }
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
 library(plyr)
 library(dplyr)
 library(arules)
+library(arulesViz)
 ```
+
+## R Markdown
+###read the data
+
+##data anlaysis 
+
 
 
 ```{r echo=TRUE}
@@ -30,6 +64,7 @@ m2 <- m1 %>%
 m2$date_submitted <- NULL
 m2$is_banked <- NULL
 m2$date <- NULL
+m2$id_student <- NULL
 m2$weight <- NULL
 m2 <- m2[complete.cases(m2), ]
 ```
@@ -53,10 +88,19 @@ rules <- apriori(m2, parameter = list(support = 0.2, confidence = 0.15))
 subRules <- which(colSums(is.subset(rules, rules)) > 1) # get subset rules in a vector
 length(subRules)
 #rules <- rules[-subRules] # remove subset rules
-rules_sup <- sort (rules, by="lift", decreasing = T) # sort by confidence ,and 
-inspect(rules_sup[1:5]) # print top 5 rules
+rules_sup <- sort (rules, by="confidence", decreasing = T) # sort by confidence ,and 
+inspect(rules_sup) # print top 5 rules
 
-
-
+## the left predeict the right
+## some do not have value can tput the soce 
 
 ```
+
+
+
+
+
+
+
+
+
