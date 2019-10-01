@@ -1,0 +1,77 @@
+---
+title: "research question 3"
+author: "Almog"
+date: "24/09/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(dplyr)
+library(arules)
+library(arulesViz)
+```
+
+```{r read, include=FALSE}
+courses <- read.csv("data/courses.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+assessments <-read.csv("data/assessments.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+studentassessment <- read.csv("data/studentAssessment.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+```
+
+```{r merge, include=FALSE}
+merge1 <- merge(x = assessments, y = courses, by = c("code_module", "code_presentation"), all.x = TRUE) #merging assessements with courses
+merge2 <- merge(x = merge1, y = studentassessment, by = "id_assessment", all.x = TRUE) #merging the first merge with the student assessments
+```
+
+```{r newtable2, echo=TRUE}
+newtable2 <- merge2 %>%
+  group_by( code_module, code_presentation, module_presentation_length, id_student) %>% #grouping by the selected columns
+  summarise(final_result = (sum(final_score = ((weight / 100) * score)))) #adding a column for the calculated final result 
+  newtable2 <- newtable2[!(newtable2$final_result=="0"),]  #removing and results that is equal to 0
+ 
+ newtable2$id_student <- NULL #removing the id_student column
+newtable2<-  newtable2[complete.cases(newtable2), ] #removing any NULL values
+ 
+newtable2$code_module <- as.factor(newtable2$code_module) #setting the columns as factors
+newtable2$code_presentation <- as.factor(newtable2$code_presentation)
+newtable2$module_presentation_length <- as.factor(newtable2$module_presentation_length)
+newtable2$final_result <- as.factor(newtable2$final_result)
+ 
+```
+# How does the course length affect the student’s achievements in the course? 
+## Methodology
+
+packages used knitr, dplyr, arules, arulesviz
+At first i looked through the tables that were needed for this question and found out what columns they had in common and found out that the first two set of tables, which are the `assessments` and the `courses`, had the columns `code_module` and `code_presentation` matching. I decided to merge those two tables together by the common columns, using the `merge` function, which created a new table that had the column `module_presentation_length` added to the corresponding course. 
+```{r echo=FALSE}
+tail(merge1)
+```
+
+Following that I needed to merge the newly merged table with the table `studentAssessment` by the common column they had, which was the `id_assessment`, again using the `merge` function. The second merged table added the `id_student`, `date_submitted`, `is_bank` and `score` columns for each assessment the student submitted.
+
+```{r echo=FALSE}
+tail(merge2)
+```
+
+After finishing the merging of the needed tables I needed to create a new table that would show only the relevant information and the `final_result` of each student in the courses they took. 
+First I used the function `group_by` to group the table by the columns `code_module`, `code_presentation`, `module_presentation_length` and `id_student` then using the `summarise` function I added the column `final_result` which showed the calculated  sum of the students' score using the algorithm `final_result = (sum(final_score = ((weight / 100) * score)))` which calculates the score for each assessments with the weight of the assessment. By using this method the columns that I didn't specify to group by were removed from the table. I removed the column `id_student` in order for it to be easier for me to find any association rules in the data, using `newtable2$id_student <- NULL`. following that I cleared any `NULL` values from the table to make sure the code for the association rules will not use any `NULL` values, using `newtable2 <- newtable2[complete.cases(newtable2), ]` then changed all the columns in the table to factors, using the function `as.factor`, in order for it be usable by the association rules code. 
+The end result gave out this table 
+```{r echo=FALSE}
+tail(newtable2)
+```
+
+After finishing manipulating the data, I needed to produce association rules to predict the final result by `code_module`, `code_presentation` and `module_presentation_length`. To produce the rules the packages `arules` and `arulesviz` were used. The function `apriori` was used to determine the set of rules from the new table created, using the parameters `support=0.2` and `confidence=0.15`, then I used the function `sort` to sort out the produced rules, I chose to sort them by `lift` in a decreasing order, because it showed the most values we can use on the LHS, if `support` is used the LHS doesn't show any values in it, if 'confidence' is used the LHS is `module_presentation_length` and if `lift` is used the LHS values are `code_module` and `code_presentation` mainly. 
+After sorting I printed out the top 5 rules using the `inspect` function.
+
+```{r echo=TRUE}
+rules <- apriori(newtable2, parameter = list(support = 0.02, confidence = 0.15)) 
+rules <- sort(rules, by = "lift", decreasing = T) 
+inspect(rules[1:5]) 
+```
+
+## Analysis
+
+In this part of the report we were looking to find if it is possible to predict the final result of the students, using the formula `code_module, code_presentation, module_presentation_length => final_results`. 
+After sorting the rules by different parametars we found out that there are no rules that could predict the final result of the student, most of the rules that were produced follow the formules `code_module, code_presentation => module_presentation_length` and `code_presentation => module_presentation_length`, no rule could find a connection between the columns and the final result. 
+In our research question we tried to find if the course length affected the students' final result, but we were dissapointed to find that there were no rules that show a relationship between the course length and the final result. 
