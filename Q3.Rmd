@@ -2,50 +2,16 @@
 title: "Untitled"
 output: html_document
 ---
-
-##the first reserach question
-
-```{r echo=TRUE, message=FALSE, warning=TRUE}
-students<- read.csv("data/studentinfo.csv",header=TRUE,sep=",",stringsAsFactors = TRUE)
-```
-# the 
-```{r echo=TRUE}
-ggplot(students) + geom_bar(aes(x=students$highest_education, fill=students$highest_education)) + labs(title = "Students in each education lever per semester", fill = "Education", x="Modules", y="Amount of students") + facet_wrap(~ students$code_presentation)+
-theme(axis.text.x = element_text(angle = 45, hjust = 1))
-```
-
-#
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ```{r setup, include=FALSE }
-knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(plyr)
 library(dplyr)
 library(arules)
 library(arulesViz)
+library(tidyverse)
+library(rsample)
+library(caret)
 ```
-
-## R Markdown
-###read the data
-
-##data anlaysis 
-
 
 
 ```{r echo=TRUE}
@@ -75,12 +41,6 @@ m2$module_presentation_length<-as.factor(m2$module_presentation_length)
 m2$code_module<-as.factor(m2$code_module)
 m2$score<-as.factor(m2$score)
 ```
-
-
-```{r echo=TRUE}
-str(m2)
-```
-
 ```{r echo=TRUE}
 ## make the assessment_type,module_presentation_length,code_module and score to the factory of the dataset 
 rules <- apriori(m2, parameter = list(support = 0.2, confidence = 0.15))
@@ -91,16 +51,13 @@ length(subRules)
 rules_sup <- sort (rules, by="confidence", decreasing = T) # sort by confidence ,and 
 inspect(rules_sup) # print top 5 rules
 
+
+## Analysis
+##in this part we try to find the relationship between the score and the assessment_type, module_presentation_length and code_module, as we can see 
 ## the left predeict the right
-## some do not have value can tput the soce 
+## some do not have value can predict  the soce ,some code_module can determing the id_assessment  and some id_assessment can also deteming  some coode_module but not all of them
+##several scorfe can determing the assessment _type ,some module_presentation_length can determing the assessment_type =TMA,
+#so we get the conclusion some code_module can determing the id_assessment ,and this id assessment can determing part assessment_type ,and this kind of assessment-type can determing the score [0,71],but we can also see even some lhs do not have anything can also determing the score [0,71]
+## so in the support = 0.2, confidence = 0.15,it actually do not have any relationship bewteen score and assessment _type ,some module_presentation_length
 
 ```
-
-
-
-
-
-
-
-
-
