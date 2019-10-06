@@ -1,5 +1,5 @@
 ---
-title: "research question 3"
+title: "Research question 3"
 author: "Almog"
 date: "24/09/2019"
 output: html_document
@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(knitr)
 library(dplyr)
+library(kableExtra)
 library(arules)
 library(arulesViz)
 ```
@@ -20,58 +21,195 @@ studentassessment <- read.csv("data/studentAssessment.csv", header = TRUE, sep =
 ```
 
 ```{r merge, include=FALSE}
-merge1 <- merge(x = assessments, y = courses, by = c("code_module", "code_presentation"), all.x = TRUE) #merging assessements with courses
-merge2 <- merge(x = merge1, y = studentassessment, by = "id_assessment", all.x = TRUE) #merging the first merge with the student assessments
+ #merging together the different tables
+merge1 <- merge(x = assessments, y = courses, by = c("code_module", "code_presentation"), all.x = TRUE)
+merge2 <- merge(x = merge1, y = studentassessment, by = "id_assessment", all.x = TRUE) 
+m1 <- merge(courses, assessments, by = c("code_module", "code_presentation")) %>% merge(studentassessment, by = "id_assessment")
 ```
 
-```{r newtable2, echo=TRUE}
+```{r almog, include=FALSE}
 newtable2 <- merge2 %>%
-  group_by( code_module, code_presentation, module_presentation_length, id_student) %>% #grouping by the selected columns
-  summarise(final_result = (sum(final_score = ((weight / 100) * score)))) #adding a column for the calculated final result 
-  newtable2 <- newtable2[!(newtable2$final_result=="0"),]  #removing and results that is equal to 0
- 
- newtable2$id_student <- NULL #removing the id_student column
-newtable2<-  newtable2[complete.cases(newtable2), ] #removing any NULL values
- 
-newtable2$code_module <- as.factor(newtable2$code_module) #setting the columns as factors
+  #grouping by the selected columns
+  group_by( code_module, code_presentation, module_presentation_length, id_student) %>% 
+  #adding a column for the calculated final result 
+  summarise(final_result = (sum(final_score = ((weight / 100) * score))))  
+
+#removing any results that is equal to 0
+  newtable2 <- newtable2[!(newtable2$final_result=="0"),] 
+#removing the id_student column  
+  newtable2$id_student <- NULL 
+#removing any NULL values
+newtable2 <- newtable2[complete.cases(newtable2), ] 
+#setting the columns as factors
+newtable2$code_module <- as.factor(newtable2$code_module) 
 newtable2$code_presentation <- as.factor(newtable2$code_presentation)
 newtable2$module_presentation_length <- as.factor(newtable2$module_presentation_length)
 newtable2$final_result <- as.factor(newtable2$final_result)
  
+``` 
+
+```{r ramish, include=FALSE}
+m1 <- merge(courses, assessments, by = c("code_module", "code_presentation")) %>% merge(studentassessment, by = "id_assessment")
+t1 <- m1 %>% group_by(code_module, code_presentation, weight, score)
+
+t1$date_submitted <- NULL
+t1$is_banked <- NULL
+t1$module_presentation_length <- NULL
+t1$date <- NULL
+t1 <- t1[complete.cases(t1), ]
+
+t1$code_module <- as.factor(t1$code_module)
+t1$code_presentation <- as.factor(t1$code_presentation)
+t1$weight <- as.factor(t1$weight)
+t1$score <- as.factor(t1$score)
 ```
-# How does the course length affect the student’s achievements in the course? 
+
+```{r ma, include=FALSE}
+m2 <- m1 %>%
+  group_by( assessment_type, module_presentation_length, code_module, score)
+
+##group the new data set by assessment_type, module_presentation_length, code_module, score
+m2$date_submitted <- NULL
+m2$is_banked <- NULL
+m2$date <- NULL
+m2$id_student <- NULL
+m2$weight <- NULL
+m2 <- m2[complete.cases(m2), ]
+m2$assessment_type<-as.factor(m2$assessment_type)
+m2$module_presentation_length<-as.factor(m2$module_presentation_length)
+m2$code_module<-as.factor(m2$code_module)
+m2$score<-as.factor(m2$score)
+```
+## Introduction 
+The research question we are exploring in this report is:
+How does the course length affect the student’s achievements in the course? 
+the datasets we needed to work with are  `courses` that shows the courses the university had to offer, the `assessments` each course had, and the `studentAssessment` which showed the score each student received for the assessments they submitted.
+
 ## Methodology
+For this research question we split it into three parts in order to find if there are different formulas to see if it is possible to predict the final result of the students, the methodology for the reading the files and merging was quite similar,  
 
-packages used knitr, dplyr, arules, arulesviz
-At first i looked through the tables that were needed for this question and found out what columns they had in common and found out that the first two set of tables, which are the `assessments` and the `courses`, had the columns `code_module` and `code_presentation` matching. I decided to merge those two tables together by the common columns, using the `merge` function, which created a new table that had the column `module_presentation_length` added to the corresponding course. 
+Packages used `knitr`, `dplyr`, `arules`, `arulesviz`
+At first We looked through the tables that were needed for this question and found out what columns they had in common and found out that the first two set of tables, which are the `assessments` and the `courses`, had the columns `code_module` and `code_presentation` matching. We then decided to merge those two tables together by the common columns, using the `merge` function, which created a new table that had the column `module_presentation_length` added to the corresponding course. 
 ```{r echo=FALSE}
-tail(merge1)
+kable(tail(merge1)) %>% 
+  kable_styling(fixed_thead = T, bootstrap_options = c("striped", "hover", "condensed", full_width = F ))
 ```
 
-Following that I needed to merge the newly merged table with the table `studentAssessment` by the common column they had, which was the `id_assessment`, again using the `merge` function. The second merged table added the `id_student`, `date_submitted`, `is_bank` and `score` columns for each assessment the student submitted.
+Following that we needed to merge the newly merged table with the table `studentAssessment` by the common column they had, which was the `id_assessment`, again using the `merge` function. The second merged table added the `id_student`, `date_submitted`, `is_bank` and `score` columns for each assessment the student submitted.
 
 ```{r echo=FALSE}
-tail(merge2)
+kable(tail(merge2)) %>% 
+  kable_styling(fixed_thead = T, bootstrap_options = c("striped", "hover", "condensed", full_width = F)) %>%
+  scroll_box(width = "100%")
 ```
+Here we separated the work into three parts
 
-After finishing the merging of the needed tables I needed to create a new table that would show only the relevant information and the `final_result` of each student in the courses they took. 
-First I used the function `group_by` to group the table by the columns `code_module`, `code_presentation`, `module_presentation_length` and `id_student` then using the `summarise` function I added the column `final_result` which showed the calculated  sum of the students' score using the algorithm `final_result = (sum(final_score = ((weight / 100) * score)))` which calculates the score for each assessments with the weight of the assessment. By using this method the columns that I didn't specify to group by were removed from the table. I removed the column `id_student` in order for it to be easier for me to find any association rules in the data, using `newtable2$id_student <- NULL`. following that I cleared any `NULL` values from the table to make sure the code for the association rules will not use any `NULL` values, using `newtable2 <- newtable2[complete.cases(newtable2), ]` then changed all the columns in the table to factors, using the function `as.factor`, in order for it be usable by the association rules code. 
-The end result gave out this table 
+Part 1:
+
+In this part we were using a formula to find associations between the columns the formula is: `code_module, code_presentation, module_presentation_length => final_results`.
+
+After finishing the merging of the needed tables We needed to create a new table that would show only the relevant information and the `final_result` of each student in the courses they took. 
+First We used the function `group_by` to group the table by the columns `code_module`, `code_presentation`, `module_presentation_length` and `id_student` then using the `summarise` function we added the column `final_result` which showed the calculated sum of the students' score using the algorithm `final_result = (sum(final_score = ((weight / 100) * score)))` which calculates the score for each assessments with the weight of the assessment. By using this method the columns that we didn't specify to group by were removed from the table. We removed the column `id_student` in order for it to be easier for us to find any association rules in the data, using `newtable2$id_student <- NULL`. following that we cleared any `NULL` values from the table to make sure the code for the association rules will not use any `NULL` values, using `newtable2 <- newtable2[complete.cases(newtable2), ]` then changed all the columns in the table to factors, using the function `as.factor`, in order for it be usable by the association rules code. 
+The end result gave out this table: 
+
 ```{r echo=FALSE}
-tail(newtable2)
+kable(tail(newtable2)) %>% 
+  kable_styling(fixed_thead = T, bootstrap_options = c("striped", "hover", "condensed", full_width = F ))
 ```
 
-After finishing manipulating the data, I needed to produce association rules to predict the final result by `code_module`, `code_presentation` and `module_presentation_length`. To produce the rules the packages `arules` and `arulesviz` were used. The function `apriori` was used to determine the set of rules from the new table created, using the parameters `support=0.2` and `confidence=0.15`, then I used the function `sort` to sort out the produced rules, I chose to sort them by `lift` in a decreasing order, because it showed the most values we can use on the LHS, if `support` is used the LHS doesn't show any values in it, if 'confidence' is used the LHS is `module_presentation_length` and if `lift` is used the LHS values are `code_module` and `code_presentation` mainly. 
-After sorting I printed out the top 5 rules using the `inspect` function.
 
+Part 2:
+
+In this part we were using a formula to find associations between the columns the formula is: `code_module, code_presentation, weight => score`.
+for this part we also needed to create a table with the relevant information
+first we grouped the table using the `group_by` function, and grouped by `code_module`, `code_presentation`, `weight` and  `score`. We needed to remove any irrelevant columns in the table that we don't need to use, those columns were, `date_submitted`, `is_banked`, `module_presentation_length` and `date` we set those columns to `NULL` once again using the function `t1$date_submitted <- NULL`, again we needed to clear any `NULL` values from the table to make sure the code for the association rules will not use any `NULL` values, using `t1 <- t1[complete.cases(t1), ]` then changed all the columns in the table to factors, using the function `as.factor`, in order for it be usable by the association rules code. 
+It gave out this table:
+
+```{r echo=FALSE}
+kable(tail(t1)) %>% 
+  kable_styling(fixed_thead = T, bootstrap_options = c("striped", "hover", "condensed", full_width = F ))
+```
+
+Part 3: 
+
+In this part we were using a formula to find associations between the columns the formula is: `assessment_type, module_presentation_length, code_module => score`.
+This part was very similar to part 2 but in this part we grouped it by `assessment_type`, `module_presentation_length`, `code_module` and `score`.
+again removing any irrelevant information, we removed the columns `date_submitted`, `is_banked`, `date`, `id_student` and `weight` we set those columns  to `NULL` and removed the ``NULL` values using `m2 <- m2[complete.cases(m2), ]` then changed all the columns in the table to factors, using the function `as.factor`, in order for it be usable by the association rules code. 
+It gave out this table:
+
+```{r echo=FALSE}
+kable(tail(m2)) %>% 
+  kable_styling(fixed_thead = T, bootstrap_options = c("striped", "hover", "condensed", full_width = F ))
+```
+
+After finishing manipulating the data, we needed to produce association rules to find a prediction for each of the formulas.
+To produce the rules the packages `arules` and `arulesviz` were used, with the function `apriori` to determine the set of rules from the new table created, using the parameters `support` and `confidence`. We then used the function `sort` to sort out the produced rules, for each part we used different sorting parameters, the rules could be sorted by `Lift`, `support` or `confidence`.
+
+Support: The support represents the frequency of an itemset in the data.
+
+Confidence: The confidence shows how often a rule is found to be true, e.g. if x is bought, how often is y bought. In this context, rather than x and y, the terms Left-Hand-Side (LHS) and Right-Hand-Side (RHS) are used.
+
+Lift: Lift provides the information if a rule LHS -> RHS is random (LHS and RHS are independent) or not. If Lift > 1, both occurrences are dependent. Only for Lift greater 1 a potential useful rule can be found.
+
+
+For part 1 we chose to sort them by `lift` in a decreasing order, because it showed the most values we can use on the LHS, if `support` is used the LHS doesn't show any values in it, if 'confidence' is used the LHS is `module_presentation_length` and if `lift` is used the LHS values are `code_module` and `code_presentation` mainly. 
+After sorting we printed out the top 5 rules using the `inspect` function.
+
+```{r include=FALSE}
+rules1 <- apriori(newtable2, parameter = list(support = 0.02, confidence = 0.15)) 
+rules1 <- sort(rules1, by = "lift", decreasing = T) 
+```
+```{r echo=FALSE}
+inspect(rules1[1:5]) 
+```
+
+```{r include=FALSE}
+rules2 <- apriori(t1, parameter = list(support = 0.01, confidence = 0.15))
+# get subset rules in a vector
+subRules <- which(colSums(is.subset(rules2, rules2)) > 1) 
+length(subRules)
+# remove subset rules
+rules2 <- rules2[-subRules] 
+# sort by support
+rules_sup <- sort (rules2, by="support", decreasing = TRUE) 
+```
+```{r echo=FALSE}
+# print top 5 rules
+inspect(rules_sup[1:5]) 
+
+```
+
+For part 2 we decided to remove any redundant rules by using using the formula `subRules <- which(colSums(is.subset(rules2, rules2)) > 1)` to create a subset of rules then using the function `rules2 <- rules2[-subRules]` to remove the redundant rules, for part 2 we sorted the rules by using the `support` parameters and for part 3 we sorted the rules by using the `confidence` parameters, to show the different results we received using the different parameters.
+
+For part 3 we did the same as part 1 except we sorted it by `confidence` to show the different results.
+```{r include=FALSE}
+rules3 <- apriori(m2, parameter = list(support = 0.2, confidence = 0.15))
+rules3 <- sort(rules3, by="confidence", decreasing = T) # sort by confidence
+```
 ```{r echo=TRUE}
-rules <- apriori(newtable2, parameter = list(support = 0.02, confidence = 0.15)) 
-rules <- sort(rules, by = "lift", decreasing = T) 
-inspect(rules[1:5]) 
+# print top 5 rules
+inspect(rules3[1:5]) 
 ```
+
+
 
 ## Analysis
+As mentioned above we decided to divide this question into three parts and for each part we had different formulas to try and answer the research question. The formulas we used were:
+Part 1: `code_module, code_presentation, module_presentation_length => final_results`
+Part 2: `code_module, code_presentation, weight => score`
+Part 3: `assessment_type, module_presentation_length, code_module => score`
 
-In this part of the report we were looking to find if it is possible to predict the final result of the students, using the formula `code_module, code_presentation, module_presentation_length => final_results`. 
-After sorting the rules by different parametars we found out that there are no rules that could predict the final result of the student, most of the rules that were produced follow the formules `code_module, code_presentation => module_presentation_length` and `code_presentation => module_presentation_length`, no rule could find a connection between the columns and the final result. 
-In our research question we tried to find if the course length affected the students' final result, but we were dissapointed to find that there were no rules that show a relationship between the course length and the final result. 
+In all of the parts that we worked on for the report we were looking to find if it is possible to predict `final_result` and the `score` of the students, using the formulas mentioned above.
+We sorted the rules by different parameters, such as `support`, `confidence` and `lift`. 
+After sorting the rules, we could not find rules that had a high `support` or high `confidence` that could help use predict the results using the formulas, in part 2 the LHS value was empty, meaning no rules were produced.
+
+We found out that the rules with high `lift` value produced rules with more values in the LHS but most of them followed different formulas than what we were using,
+for part 1 it followed the formulas `code_module, code_presentation => module_presentation_length` and `code_presentation => module_presentation_length`, for part 2 it followed the formulas `weight => code_module` and `assessment_type => code_module`, for part 3 it followed the formulas `module_presentation_length => code_presentation`, `code_presentation => module_presentation_length` and `code_module => id_assessment`.
+
+We couldn't use any of the rules that were produced because none of the rules could help us in predicting the `final_result` or the `score` of the students, according to the formulas we followed, meaning that that there was no relationship between the tested columns and the `final_result`/`score` of the students.
+
+In our research question we tried to find if the `module_presentation_length` affected the students' `final_result`, but we were disappointed to find that there were no rules that show a relationship between them. 
+
+## Conclusion 
+
+
