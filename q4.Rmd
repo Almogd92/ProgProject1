@@ -1,0 +1,74 @@
+---
+title: "q4"
+author: "Ramish"
+date: "08/10/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(kableExtra)
+library(arules)
+```
+
+```{r}
+
+a <- read.csv("Practice/Data/assessments.csv", header = TRUE, sep=",", stringsAsFactors = FALSE)
+s <- read.csv("Practice/Data/studentAssessment.csv", header = TRUE, sep=",", stringsAsFactors = FALSE)
+sInfo <- read.csv("Practice/Data/studentInfo.csv", header = TRUE, sep=",", stringsAsFactors = FALSE)
+
+```
+
+```{r}
+
+m1 <- merge(x = a, y =sInfo, by = c("code_presentation", "code_module"), all.x = TRUE)
+m2 <- merge(x = m1, y = s, by = "id_student", all.x = TRUE)
+m3 <- merge(a, sInfo, by = c("code_presentation", "code_module")) %>% merge(s, by = "id_student")
+
+summary(m3)
+
+```
+
+```{r}
+
+t1 <- m3 %>% group_by(code_module, code_presentation, id_student, region) %>% 
+summarise(final_result = (sum(final_score = ((weight / 1000) * score))))  
+
+t1$id_assessment.x <- NULL
+t1$id_assessment.y <- NULL
+t1$is_banked <- NULL
+t1$date_submitted <- NULL
+t1$date <- NULL
+t1$gender <- NULL
+t1$num_of_prev_attempts <- NULL
+t1$studied_credits <- NULL
+t1$disability <- NULL
+t1$imd_band <- NULL
+t1$age_band <- NULL
+
+t1 <- t1[!(t1$final_result=="0"),]
+
+t1 <- t1[complete.cases(t1), ]
+
+t1
+
+```
+
+```{r}
+
+r1 <- apriori(t1, parameter = list(support = 0.1, confidence = 0.2))
+r1 <- sort(r1, by = "lift", decreasing = T)
+
+r2 <- apriori(t1, parameter = list(support = 0.2, confidence = 0.1))
+r2 <- sort(r1, by = "support", decreasing = T)
+
+inspect(r1[1:5])
+inspect(r2[1:5])
+
+```
+
+##Methodology
+
+For this analysis, our goal was to find if a student's geographical location had any affect on their final score. We used three different datasets for this task: assessments, studentAssessment and studentInfo. First, all the datasets were merged together. This was first done by merging studentInfo and assessments since they had code_module and code_presentation in common so these values were used for group_by in the merge. The resultant was merged with studentAssessment and grouped by id_student. The next task at hand was creating a table by importing the library kableExtra which contained all the elements needed grouped by the necessary values AND create a new column for the final result of a student by writing the formula for it. Then, the unnecessary elements were deleted and empty fields removed. 
+Next, we used apriori algorithm for association rules to see any findings. To observe two different rules, we used r1 and r2. r1 was sorted by lift while r2 was sorted by support.
