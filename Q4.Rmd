@@ -1,0 +1,227 @@
+```{r}
+courses <- read.csv("data/courses.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+assessments <-read.csv("data/assessments.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+studentassessment <- read.csv("data/studentAssessment.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE)
+```
+
+
+```{r merge1, include=FALSE}
+merge1 <- merge(x = assessments, y = courses, by = c("code_module", "code_presentation"), all.x = TRUE)
+```
+
+```{r merge2, include=FALSE}
+merge2 <- merge(x = merge1, y = studentassessment, by = "id_assessment", all.x = TRUE)
+```
+
+crates a table that groups by code_module, code_presentation, module_presentation_length, id_student and then calculate the final result by summing all the final score calculations of ((weight/100) times score)
+does group by selected columns, removes all other columns
+
+```{r newtable2, echo=TRUE}
+newtable2 <- merge2 %>%
+  group_by( code_module, code_presentation, module_presentation_length, id_student) %>%
+  summarise(final_result = (sum(final_score = ((weight / 100) * score))))
+  newtable2 <- newtable2[!(newtable2$final_result=="0"),]
+ 
+ newtable2$id_student <- NULL
+newtable2<-  newtable2[complete.cases(newtable2), ]
+ 
+newtable2$code_module <- as.factor(newtable2$code_module)
+newtable2$code_presentation <- as.factor(newtable2$code_presentation)
+newtable2$module_presentation_length <- as.factor(newtable2$module_presentation_length)
+newtable2$final_result <- as.factor(newtable2$final_result)
+ 
+```
+```{r}
+str(newtable2)
+```
+
+``` {r}
+a<- read.csv("data/studentInfo.csv",header=TRUE,sep=",",stringsAsFactors = TRUE)
+c<- read.csv("data/studentAssessment.csv",header=TRUE,sep=",",stringsAsFactors = TRUE)
+## read the data from the scv
+m1 <- merge(a,c,by=c("id_student"))
+m1$code_module <- NULL
+m1$age_band <- NULL
+m1$num_of_prev_attempts <- NULL
+m1$id_assessment <- NULL
+m1$studied_credits <- NULL
+m1$imd_band <- NULL
+m1$date_submitted <- NULL
+m1$is_banked <- NULL
+m1$highest_education <- NULL
+m1$disability <- NULL
+m1$code_presentation <- NULL
+m1$weight <- NULL
+m1 <- m1[complete.cases(m1), ]
+m1s <- m1%>%filter(region=='Scotland')
+m1e <- m1%>%filter(region=='East Anglian Region')
+m1n <- m1%>%filter(region=='North Western Region')
+m1se <- m1%>%filter(region=='South East Region')
+m1wm <- m1%>%filter(region=='West Midlands Region')
+m1sm <- m1%>%filter(region=='Wales')
+```
+``` {r}
+library(tidyverse)
+ggplot(m1, aes(x = score)) +
+    geom_histogram(bins = 25) +
+    labs(x = "score",
+         y = "Number of student in Scotland")
+ggplot(m1s, aes(x = score)) +
+    geom_histogram(bins = 25) +
+    labs(x = "score",
+         y = "Number of student in Scotland")
+ggplot(m1e, aes(x = score)) +
+    geom_histogram(bins = 25) +
+    labs(x = "score",
+         y = "Number of student in East Anglian Region")
+ggplot(m1n, aes(x = score)) +
+    geom_histogram(bins = 25) +
+    labs(x = "score",
+         y = "Number of student in North Western Region")
+ggplot(m1se, aes(x = score)) +
+    geom_histogram(bins = 25) +
+    labs(x = "score",
+         y = "Number of student in South East Region")
+ggplot(m1wm, aes(x = score)) +
+    geom_histogram(bins = 25) +
+    labs(x = "score",
+         y = "Number of student in West Midlands Region")
+ggplot(m1sm, aes(x = score)) +
+    geom_histogram(bins = 25) +
+    labs(x = "score",
+         y = "Number of student in Wales")
+```
+
+##analysis 
+as the graph show above we can  see most of the student in diffrent region show an similar groth from score 0 to scor 75 they grow gragually and from 75 to 99 to go down gradually ,and they get a sharp groth on the score of 100,in diffrent region they all show a shape like that ,but in Scaotland student's score from 75 to 100 is not so clear,even if it still keep going down but the number is not much diffrent,it show that student in Score get a better result than other student in other place and the student in Scolland have a more similar eduacation level
+
+``` {r}
+car_vars <- m1 %>%
+    select(-gender, -`final_result`)
+
+# Fit a linear model
+fit_all <- lm(score ~ ., data = car_vars)
+
+# Print the summary of the model
+summary(fit_all)
+```
+```{r}
+library(rsample)
+library(tidyverse)
+car_split <- car_vars %>%
+    initial_split(prop = 0.8, strata = "score")
+
+car_train <- training(car_split)
+car_test <- testing(car_split)
+
+```
+
+```{r}
+library(tidyverse)
+library(caret)
+
+# Train a linear regression model
+fit_lm <- train(log(score+0.0000001) ~ ., 
+                method = "lm", 
+                data = car_train,
+                trControl = trainControl(method = "none", verbose =T))
+
+# Print the model object
+fit_lm
+```
+
+```{r}
+library(tidyverse)
+library(caret)
+
+# Train a linear regression model
+fit_rf <- train(log(score+0.0000001) ~ ., 
+                method = "rf", 
+                data = car_train,
+                trControl = trainControl(method = "none", verbose =T))
+
+# Print the model object
+fit_lm
+```
+
+
+```{r}
+
+library(yardstick)
+
+# Create the new columns
+results <- car_train %>%
+    mutate(
+           `Linear regression` = predict(fit_lm, car_train),
+           `Random forest` = predict(fit_rf, car_train))
+
+# Evaluate the performance
+metrics(results, truth = score, estimate = `Linear regression`)
+metrics(results, truth =score, estimate = `Random forest`)
+```
+
+
+```{r}
+library(caret)
+library(tidyverse)
+library(yardstick)
+
+# Create the new columns
+results <- car_test %>%
+    mutate(`Linear regression` = predict(fit_lm, car_test),
+           `Random forest` = predict(fit_rf, car_test))
+
+# Evaluate the performance
+metrics(results, truth = score, estimate = `Linear regression`)
+metrics(results, truth = score, estimate = `Random forest`)
+
+```
+
+
+
+```{r}
+
+library(caret)
+library(tidyverse)
+library(yardstick)
+
+# Fit the models with bootstrap resampling
+cars_lm_bt <- train(log(score+0.0000001) ~ ., 
+                    method = "lm", 
+                    data = car_train,
+                    trControl = trainControl(method = "boot"))
+
+```
+
+
+```{r}
+library(caret)
+library(tidyverse)
+library(yardstick)
+cars_rf_bt <- train(log(score+0.0000001) ~ ., 
+                    method = "rf", 
+                    data = car_train,
+                    trControl = trainControl(method = "boot"))
+
+# Quick look at the models
+```
+
+```{r}
+library(caret)
+library(tidyverse)
+library(yardstick)
+
+results <- car_test %>%
+    mutate(MPG = log(score),
+           `Linear regression` = predict(cars_lm_bt, car_test),
+           `Random forest` = predict(cars_rf_bt, car_test))
+
+results %>%
+    gather(Method, Result, `Linear regression`:`Random forest`) %>%
+    ggplot(aes(MPG, Result, color = Method)) +
+    geom_point(size = 1.5, alpha = 0.5) +
+    facet_wrap(~Method) +
+    geom_abline(lty = 2, color = "gray50") +
+    geom_smooth(method = "lm")
+
+```
