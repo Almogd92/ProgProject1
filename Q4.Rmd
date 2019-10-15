@@ -3,7 +3,7 @@
 seond we rebuilt the dataset with one final_result and remove the value do not need 
 thirdly,we seperate the data to train and test 
 fourth, we use lm and rf to train data and create the new mode rf 
-step five,we use the boot method to make the lm boot modeand rf boot mode 
+step five,we use the boot method to make the lm boot modeand rf boot mode (this step will take 10.5 hourse computing work)
 finally, we predcit the result and compare with the test data and the boot mode and draw the lm and rf chart
   
   
