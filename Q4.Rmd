@@ -1,16 +1,26 @@
+  
+## Methodology first it read the csv data and put to the dataset,and then it merge the three dataset to one 
+seond we rebuilt the dataset with one final_result and remove the value do not need 
+thirdly,we seperate the data to train and test 
+fourth, we use lm and rf to train data and create the new mode rf 
+step five,we use the boot method to make the lm boot modeand rf boot mode 
+finally, we predcit the result and compare with the test data and the boot mode and draw the lm and rf chart
+  
+  
+  
+  
 ```{r}
 a <- read.csv("Data/assessments.csv", header = TRUE, sep=",", stringsAsFactors = FALSE)
 s <- read.csv("Data/studentAssessment.csv", header = TRUE, sep=",", stringsAsFactors = FALSE)
 sInfo <- read.csv("Data/studentInfo.csv", header = TRUE, sep=",", stringsAsFactors = FALSE)
 ```
-
+## read the csv data and put to the dataset 
 ```{r}
 m1 <- merge(x = a, y =sInfo, by = c("code_presentation", "code_module"), all.x = TRUE)
 m2 <- merge(x = m1, y = s, by = "id_student", all.x = TRUE)
 m3 <- merge(a, sInfo, by = c("code_presentation", "code_module")) %>% merge(s, by = "id_student")
-
 ```
-
+## merge the three dataset to one 
 ```{r}
 t1 <- m3 %>% group_by(code_module, code_presentation, id_student, region) %>% 
 summarise(final_result = (sum(final_score = ((weight / 1000) * score))))  
@@ -31,75 +41,64 @@ t1$age_band <- NULL
 t1 <- t1[!(t1$final_result=="0"),]
 t1 <- t1[complete.cases(t1), ]
 ```
+## rebuilt the dataset with one final_result and remove the value do not need 
 ```{r}
 library(rsample)
 library(tidyverse)
 car_split <- t1 %>%
     initial_split(prop = 0.8, strata = "final_result")
-
 car_train <- training(car_split)
 car_test <- testing(car_split)
-
 ```
-
+## seperate the data to train and test 
 ```{r}
 library(tidyverse)
 library(caret)
-
 # Train a linear regression model
 fit_lm <- train(log(final_result+0.0000001) ~ ., 
                 method = "lm", 
                 data = car_train,
                 trControl = trainControl(method = "none", verbose =T))
-
 # Print the model object
-
 ```
+##   use lm to he train data and create the new mode
 
 ```{r}
 library(tidyverse)
 library(caret)
-
 # Train a linear regression model
 fit_rf <- train(log(final_result+0.0000001) ~ ., 
                 method = "rf", 
                 data = car_train,
                 trControl = trainControl(method = "none", verbose =T))
-
 # Print the model object
-
 ```
-
+## use rf to the train data and creat the new mode
 
 ```{r}
-
 library(yardstick)
-
 # Create the new columns
 results <- car_train %>%
     mutate(
            `Linear regression` = predict(fit_lm, car_train),
            `Random forest` = predict(fit_rf, car_train))
-
 # Evaluate the performance
 metrics(results, truth = final_result, estimate = `Linear regression`)
 metrics(results, truth =final_result, estimate = `Random forest`)
 ```
+##  compare the  dataset with two mode and make hte predict 
 
 ```{r}
-
 library(caret)
 library(tidyverse)
 library(yardstick)
-
 # Fit the models with bootstrap resampling
 cars_lm_bt <- train(log(final_result+0.0000001) ~ ., 
                     method = "lm", 
                     data = car_train,
                     trControl = trainControl(method = "boot"))
-
 ```
-
+## use the boot method to make the lm mode 
 
 ```{r}
 library(caret)
@@ -109,20 +108,16 @@ cars_rf_bt <- train(log(final_result+0.0000001) ~ .,
                     method = "rf", 
                     data = car_train,
                     trControl = trainControl(method = "boot"))
-
 # Quick look at the models
 ```
-
+## use the boot method to make the rf mode 
 ```{r}
 library(caret)
 library(tidyverse)
-
-
 results <- car_test %>%
     mutate(MPG = log(final_result),
            `Linear regression` = predict(cars_lm_bt, car_test),
            `Random forest` = predict(cars_rf_bt, car_test))
-
 results %>%
     gather(Method, Result, `Linear regression`:`Random forest`) %>%
     ggplot(aes(MPG, Result, color = Method)) +
@@ -132,6 +127,4 @@ results %>%
     geom_smooth(method = "lm")
 
 
-
-
-```
+## draw the lr and rf 
